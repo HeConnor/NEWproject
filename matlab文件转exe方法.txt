@@ -1,0 +1,58 @@
+
+
+方法一：matlab-r2015a 在命令窗口输入deploytool，弹出Compiler；然后选择自己所需的转换格式，如 standalone applications；点击后，自行配置文件并转换。
+
+
+方法二：
+
+1、确定安装好Matlab Compiler后，对其进行简单配置：在matlab命令窗口输入：mbuild –setup， 按提示选择matlab自带编译器LCC
+
+2、将脚本编译为可执行文件
+如项目文件包含：gui.m, gui.gif, fun1.m。
+在此路径下命令行输入：mcc –m gui.m，生 成：mccExcludedFiles.log，ReadMe.txt，gui.ctf，gui.prj，gui_main.c，gui_mcc_component_data.c，gui.exe。其中：gui.ctf，gui.exe为脱离matlab环境运行必需的文件。
+
+3、在未安装matlab的机器上运行可执行程序。
+
+将R2015a中（ D:\Program Files\Matlab\MATLAB Production Server\R2015a\toolbox\compiler\deploy\win64）安装到该计算机上，将生成可执行程序脱离matlab运行所需的函数库。
+
+运行mglinstaller.exe，并添加环境变量path，即可执行.exe文件
+
+将2中生成的gui.ctf，gui.exe拷贝到该计算机同一路径。运行gui.exe将生成gui_mcr文件夹，包含程序运行所需的库。至此完成
+
+4、去除独立可执行程序运行时的“DOS黑窗口”。
+
+以上生成的exe程序运行时首先弹出一个DOS界面窗口，如果不需要其输出数据和错误信息，可将其去除。
+
+如果程序比较复杂，易出现异常，则不建议去除这个dos窗口以便调试。
+
+matlba命令行输入：
+
+cd(prefdir) 
+edit compopts.bat
+
+此时compopts.bat打开，在文件最后添加：
+
+set LINKFLAGS=%LINKFLAGS% -subsystem windows 
+
+
+另外，这个办法是适用于你用的编译器为LCC，如果是其他的，那么所加语句有所不同
+
+Microsoft Visual C/C++: 
+
+set LINKFLAGS=%LINKFLAGS% /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup
+
+Borland: 
+
+set LINKFLAGS=%LINKFLAGS% -aa
+
+5.遇到某些函数不能使用的问题。
+
+我的程序中用到vpa函数，运行gui.exe出现：undefined method or function 'vpa' for input argument type of 'double'错误提示。而gui.m脚本在matlab环境可以运行
+
+
+
+
+
+GUI生成的exe文件怎么去掉左上的图标？ 
+
+javaFrame = get(hObject, 'JavaFrame');   javaFrame.setFigureIcon(javax.swing.ImageIcon('你要换的图像.jpg') 加在OpeningFcn内。      Matlab时如何让exe文件带上自己想要的图标   假设你的图标文件是：DA.ico；你想编译的m文件是：data.m 第一步：创建一个文本文件，里面写入"ConApp ICON DA.ico" 第二步：把刚才的文本文件重命名为一个rc文件，如DA.rc 第三步：在matlab命令窗口中键入：   system(['"' matlabroot '\sys\lcc\bin\lrc" /i "' pwd '\DA.rc"']); 这一步是把DA.rc和DA.ico编译到一起   此时在你的当前工作目录下会生成一个名为DA.res的resource file
